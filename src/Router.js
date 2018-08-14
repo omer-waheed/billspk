@@ -10,7 +10,7 @@ import Profile from "./components/Profile";
 const RouterComponent = () => {
   return (
     <Router>
-      <Scene tabs hideTabBar hideNavBar>
+      <Scene key="root" tabs hideTabBar hideNavBar>
         <Scene key="auth">
           <Scene
             key="splash"
@@ -23,7 +23,7 @@ const RouterComponent = () => {
           <Scene key="login" component={Login} tabs hideTabBar hideNavBar />
           <Scene key="signup" component={Signup} tabs hideTabBar hideNavBar />
         </Scene>
-        <Scene key="main">
+        <Scene key="main" type="reset">
           <Scene
             key="home"
             component={Home}
