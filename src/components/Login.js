@@ -65,7 +65,12 @@ class Login extends Component {
             type: "success"
           });
         }
-        this.setState({ loading: false });
+        this.setState({
+          email: "",
+          password: "",
+          validated: "",
+          loading: false
+        });
         AsyncStorage.setItem("User", JSON.stringify(res.data.response.user));
         AsyncStorage.setItem("Token", res.data.response.access_token);
         this.props.shiftingToMain();

@@ -136,9 +136,9 @@ class SubscriberCard extends Component {
   render() {
     Moment.locale("en");
     return (
-      <Content padder>
+      <Content style={{ marginTop: 0, marginRight: 5, marginLeft: 5 }}>
         <Card style={{ borderRadius: 5 }}>
-          <CardItem>
+          <CardItem style={{ marginTop: 5 }}>
             <Left>
               <Text style={{ fontWeight: "bold", color: "#8d8d8d" }}>
                 Subscriber Name:

@@ -7,7 +7,10 @@ import {
   Text,
   Toast,
   Spinner,
-  Header
+  Header,
+  Left,
+  Thumbnail,
+  Body
 } from "native-base";
 import { AsyncStorage } from "react-native";
 import { Actions } from "react-native-router-flux";
@@ -16,35 +19,35 @@ import NumberFormat from "react-number-format";
 
 import UserService from "../services/user";
 import AppFooter from "./common/Footer";
-import SubscriberCard from "./common/SubscriberCard";
-import { shiftedToMain } from "../actions";
-
-class Home extends Component {
+import { shiftedTobills } from "../actions";
+class Transaction extends Component {
   state = {
-    user: {},
     balanceLoad: "",
-    subscribers: [],
+    Token: "",
+    user: {},
     cardLoad: "",
-    Token: ""
+    card: []
   };
+  stateChange() {
+    if (this.props.bills) {
+      this.props.shiftedTobills();
+      this.artificial_function();
+    }
+  }
   componentWillMount() {
-    console.log("I DID");
     this.artificial_function();
   }
   artificial_function() {
     // componentWillMount();
-    console.log("-i am called from artificial");
+    // console.log("-i am called from artificial");
     AsyncStorage.getItem("Token", (err, res) => {
       console.log(res);
       if (!err) {
         this.setState({ Token: res });
         this.getBalance();
-        this.getSubscribers();
+        this.getCard();
       }
     });
-  }
-  componentWillUnmount() {
-    console.log("UnMount");
   }
   getBalance() {
     this.setState({
@@ -78,21 +81,21 @@ class Home extends Component {
         Actions.auth();
       });
   }
-  getSubscribers() {
+  getCard() {
     this.setState({
       cardLoad: true
     });
-    UserService.subscriberList(this.state.Token)
+    UserService.transactionList(this.state.Token)
       .then(response => {
-        // console.log(response);
         if (response.data.status) {
-          //console.log(response.data.response.data);
           this.setState({
-            subscribers: response.data.response.data,
+            card: response.data.response,
             cardLoad: false
           });
         } else {
-          this.setState({ cardLoad: false });
+          this.setState({
+            cardLoad: false
+          });
           Toast.show({
             text: "Something Went Wrong",
             position: "top",
@@ -102,8 +105,6 @@ class Home extends Component {
         }
       })
       .catch(error => {
-        // console.log(error.response);
-        this.setState({ cardLoad: false });
         Toast.show({
           text: "Something Went Wrong",
           position: "top",
@@ -128,30 +129,33 @@ class Home extends Component {
       />
     );
   }
-  onLoadCard() {
-    // console.log(this.state.subscribers);
+  onCardLoad() {
     if (this.state.cardLoad) {
       return <Spinner color="#00590f" />;
     }
-    return this.state.subscribers.map(subscriber => {
+    return this.state.card.map(data => {
       return (
-        <SubscriberCard
-          key={subscriber.subscriber_id}
-          data={subscriber}
-          onPay={() => this.getBalance()}
-          Token={this.state.Token}
-        />
+        <Card>
+          <CardItem>
+            <Left>
+              <Thumbnail
+                source={{
+                  uri: data.merchant_logo
+                }}
+              />
+              <Body>
+                <Text>{data.merchant_name}</Text>
+                <Text note>{data.subscriber_nickname}</Text>
+                <Text note>Amount: {data.amount}</Text>
+              </Body>
+            </Left>
+          </CardItem>
+        </Card>
       );
     });
   }
-  shiftingToMain() {
-    if (this.props.home) {
-      this.props.shiftedToMain();
-      this.artificial_function();
-    }
-  }
   render() {
-    this.shiftingToMain();
+    this.stateChange();
     return (
       <Container style={{ backgroundColor: "#f2f2f2" }}>
         <Header transparent span style={{ paddingTop: 30 }}>
@@ -181,9 +185,8 @@ class Home extends Component {
             <CardItem style={{ backgroundColor: "#f2f2f2" }} />
           </Card>
         </Header>
-        <Content>{this.onLoadCard()}</Content>
-
-        <AppFooter home={true} profile={false} transaction={false} />
+        <Content padder>{this.onCardLoad()}</Content>
+        <AppFooter home={false} profile={false} transaction={true} />
       </Container>
     );
   }
@@ -191,10 +194,10 @@ class Home extends Component {
 
 const MapStateToProps = state => {
   return {
-    home: state.shift.home
+    bills: state.shift.bills
   };
 };
 export default connect(
   MapStateToProps,
-  { shiftedToMain }
-)(Home);
+  { shiftedTobills }
+)(Transaction);
